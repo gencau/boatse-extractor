@@ -1,12 +1,12 @@
-# boatse-extractor/extractor.py
+# boatse_extractor/extractor.py
 
 from __future__ import annotations
 from typing import Any, Dict, Optional
 from transformers import pipeline, AutoTokenizer
 import torch
 
-from extractor.prompts.agent_context_prompt import AgentContextPrompt
-from extractor.utils.json_utils import parse_json_safe
+from boatse_extractor.prompts.agent_context_prompt import AgentContextPrompt
+from boatse_extractor.utils.json_utils import parse_json_safe
 
 
 class BugInfoExtractor:

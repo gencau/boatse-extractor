@@ -1,7 +1,7 @@
 from typing import List
 
-from extractor.utils.type_utils import ChatMessage
-from extractor.prompts.agent_prompt_templates import AGENT_EXTRACT_INFO_PROMPT, AGENT_SYSTEM_PROMPT_TEMPLATE, \
+from boatse_extractor.utils.type_utils import ChatMessage
+from boatse_extractor.prompts.agent_prompt_templates import AGENT_EXTRACT_INFO_PROMPT, AGENT_SYSTEM_PROMPT_TEMPLATE, \
                                            AGENT_FIND_BEST_MATCHES_PROMPT
 
 
