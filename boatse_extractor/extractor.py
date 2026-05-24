@@ -22,8 +22,9 @@ class BugInfoExtractor:
     def __init__(
         self,
         prompt: AgentContextPrompt,
+        api_key: Optional[str] = None,
         model_name: str = DEFAULT_MODEL,
-        device: Optional[str] = None,
+        
     ):
         self._prompt = prompt
         self._model_name = model_name
