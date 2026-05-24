@@ -21,6 +21,5 @@ dev = [
     "jupyter",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["boatse_extractor*"]
+[tool.setuptools]
+packages = ["boatse_extractor"]
