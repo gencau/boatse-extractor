@@ -38,6 +38,7 @@ class BugInfoExtractor:
             model=model_name,
             torch_dtype=torch.float16 if device == "cuda" else torch.float32,
             device_map="auto",
+            framework="pt", 
         )
         self._tokenizer = AutoTokenizer.from_pretrained(model_name)
 
