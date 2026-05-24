@@ -17,7 +17,7 @@ class BugInfoExtractor:
         result = extractor("App crashes when uploading files > 10MB")
     """
 
-    DEFAULT_MODEL = "Qwen/Qwen2.5-Coder-7B-Instruct-GGUF"  # swap for any ≤7B HF model
+    DEFAULT_MODEL = "qwen/qwen3-32b"  # swap for any ≤7B HF model
 
     def __init__(
         self,
@@ -70,7 +70,7 @@ class BugInfoExtractor:
 
     def _generate(self, messages: list) -> str:
         response = self._client.chat.completions.create(
-            model="llama-3.1-8b-instant",  # or "gemma2-9b-it", "mixtral-8x7b-32768"
+            model=self._model_name, 
             messages=messages,
             max_tokens=2048,
             temperature=0.0,
