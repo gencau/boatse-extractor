@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from typing import Any, Dict, Optional
-from transformers import pipeline, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
 from boatse_extractor.prompts.agent_context_prompt import AgentContextPrompt
@@ -29,18 +29,12 @@ class BugInfoExtractor:
         self._prompt = prompt
         self._model_name = model_name
 
-        # auto-detect GPU in Colab, fall back to CPU
-        if device is None:
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-
-        self._pipe = pipeline(
-            "text-generation",
-            model=model_name,
+        self._tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self._model = AutoModelForCausalLM.from_pretrained(
+            model_name,
             torch_dtype=torch.float16 if device == "cuda" else torch.float32,
             device_map="auto",
-            framework="pt", 
         )
-        self._tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     # ------------------------------------------------------------------ #
     #  Public API                                                          #
@@ -79,17 +73,19 @@ class BugInfoExtractor:
         ]
 
     def _generate(self, messages: list) -> str:
-        # apply_chat_template handles model-specific formatting (Llama, Qwen, etc.)
         prompt_str = self._tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
         )
-        output = self._pipe(
-            prompt_str,
-            max_new_tokens=2048,
-            temperature=1e-6,   # near-deterministic; some models reject 0.0
-            do_sample=False,
-        )
-        return output[0]["generated_text"][len(prompt_str):]
+        inputs = self._tokenizer(prompt_str, return_tensors="pt").to(self._model.device)
+        with torch.no_grad():
+            outputs = self._model.generate(
+                **inputs,
+                max_new_tokens=2048,
+                do_sample=False,
+            )
+        # strip the prompt tokens from the output
+        generated = outputs[0][inputs["input_ids"].shape[1]:]
+        return self._tokenizer.decode(generated, skip_special_tokens=True)
 
     def _parse(self, raw: str) -> Any:
         try:
