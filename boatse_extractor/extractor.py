@@ -18,7 +18,7 @@ class BugInfoExtractor:
         result = extractor("App crashes when uploading files > 10MB")
     """
 
-    DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct"  # swap for any ≤7B HF model
+    DEFAULT_MODEL = "Qwen/Qwen2.5-Coder-7B-Instruct-GGUF"  # swap for any ≤7B HF model
 
     def __init__(
         self,
