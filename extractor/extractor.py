@@ -1,4 +1,4 @@
-# boatse-extractor/extractors.py
+# boatse-extractor/extractor.py
 
 from __future__ import annotations
 from typing import Any, Dict, Optional
