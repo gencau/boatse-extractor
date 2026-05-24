@@ -1,2 +1,2 @@
-# boatse-extractor/__init__.py
-from . import BugInfoExtractor
+# boatse_extractor/__init__.py
+from .extractor import BugInfoExtractor
