@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "boatse-extractor"
+version = "0.1.0"
+description = "Bug report info extraction toolkit"
+requires-python = ">=3.9"
+dependencies = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "accelerate>=0.26.0",       # needed for device_map='auto'
+    "tenacity>=8.0.0",
+]
+
+[project.optional-dependencies]
+# users install with: pip install your-package-name[dev]
+dev = [
+    "pytest",
+    "jupyter",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["boatse-extractor*"]
