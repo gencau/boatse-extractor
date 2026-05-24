@@ -6,9 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "boatse-extractor"
 version = "0.1.0"
 description = "Bug report info extraction toolkit"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "tenacity>=8.0.0",
 ]
 
 [project.optional-dependencies]
@@ -18,5 +17,5 @@ dev = [
     "jupyter",
 ]
 
-[tool.setuptools]
-packages = ["boatse_extractor"]
+[tool.setuptools.packages.find]
+where = ["."]
