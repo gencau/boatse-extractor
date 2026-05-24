@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from typing import Any, Dict, Optional
-from groq import Groq
+from openai import OpenAI
 
 from boatse_extractor.prompts.agent_context_prompt import AgentContextPrompt
 from boatse_extractor.utils.json_utils import parse_json_safe
@@ -17,7 +17,7 @@ class BugInfoExtractor:
         result = extractor("App crashes when uploading files > 10MB")
     """
 
-    DEFAULT_MODEL = "qwen/qwen3-32b"  # swap for any ≤7B HF model
+    DEFAULT_MODEL = "qwen/qwen3-30b-a3b-instruct-2507"
 
     def __init__(
         self,
@@ -29,7 +29,10 @@ class BugInfoExtractor:
         self._prompt = prompt
         self._model_name = model_name
 
-        self._client =Groq(api_key=api_key)
+        self._client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=api_key,
+        )
 
 
     # ------------------------------------------------------------------ #
