@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 from typing import Any, Dict, Optional
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
+from groq import Groq
 
 from boatse_extractor.prompts.agent_context_prompt import AgentContextPrompt
 from boatse_extractor.utils.json_utils import parse_json_safe
@@ -29,12 +28,8 @@ class BugInfoExtractor:
         self._prompt = prompt
         self._model_name = model_name
 
-        self._tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self._model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            device_map="auto",
-        )
+        self._client =Groq(api_key=api_key)
+
 
     # ------------------------------------------------------------------ #
     #  Public API                                                          #
@@ -73,19 +68,13 @@ class BugInfoExtractor:
         ]
 
     def _generate(self, messages: list) -> str:
-        prompt_str = self._tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
+        response = self._client.chat.completions.create(
+            model="llama-3.1-8b-instant",  # or "gemma2-9b-it", "mixtral-8x7b-32768"
+            messages=messages,
+            max_tokens=2048,
+            temperature=0.0,
         )
-        inputs = self._tokenizer(prompt_str, return_tensors="pt").to(self._model.device)
-        with torch.no_grad():
-            outputs = self._model.generate(
-                **inputs,
-                max_new_tokens=2048,
-                do_sample=False,
-            )
-        # strip the prompt tokens from the output
-        generated = outputs[0][inputs["input_ids"].shape[1]:]
-        return self._tokenizer.decode(generated, skip_special_tokens=True)
+        return response.choices[0].message.content
 
     def _parse(self, raw: str) -> Any:
         try:
