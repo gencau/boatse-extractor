@@ -32,6 +32,9 @@ class BugInfoExtractor:
         self._client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=api_key,
+            temperature=0.0,
+            seed=42,
+            max_tokens=2048,
         )
 
 
