@@ -1,10 +1,7 @@
 from typing import List
 
 from pathlib import Path
-import anthropic
 import tiktoken
-from transformers import AutoTokenizer
-from sentencepiece import SentencePieceProcessor
 
 
 class TokenizationUtils:
@@ -64,6 +61,7 @@ class TokenizationUtils:
         self._tokenizer = None
 
         if (self._model_name == "codellama"):
+            from sentencepiece import SentencePieceProcessor
             self._tokenizer = SentencePieceProcessor()
             current_dir = Path(__file__).parent
             self._tokenizer.Load(str(current_dir) + "/tokenizers/codellama/tokenizer.model")
@@ -72,8 +70,10 @@ class TokenizationUtils:
             if self._model_provider == "openai":
                 self._tokenizer = tiktoken.encoding_for_model(self._model_name)
             elif self._model_provider == "anthropic":
+                import anthropic
                 self._tokenizer = anthropic.Anthropic().get_tokenizer()
             elif self._model_provider == "huggingface":
+                from transformers import AutoTokenizer
                 self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
             elif self._model_provider == "meta":
                 self._tokenizer = tiktoken.encoding_for_model("gpt2")
