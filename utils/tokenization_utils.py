@@ -48,6 +48,7 @@ class TokenizationUtils:
         "llama3.3-70b-16k": {"model_provider": "huggingface", "model_name": "meta-llama/Llama-3.3-70B-Instruct", "context_size": 16384},
         "qwen3-coder-16k": {"model_provider": "huggingface", "model_name": "Qwen/Qwen3-Coder-30B-A3B-Instruct", "context_size": 16384},
         "deepcoder-14b-16k": {"model_provider": "huggingface", "model_name": "agentica-org/DeepCoder-14B-Preview", "context_size": 16384},        
+        "qwen/qwen3-30b-a3b-instruct-2507": {"model_provider": "huggingface", "model_name": "qwen/qwen3-30b-a3b-instruct-2507", "context_size": 16384},
     }
 
     def __init__(self, profile_name: str):
