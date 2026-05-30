@@ -6,8 +6,8 @@ from utils.path_utils import safe_repo_path
 from utils.json_utils import parse_json_safe
 from utils.view_file_utils import filter_file_preview, read_file_safe
 from utils.bm25_utils import extract_from_dict
-from agent.run_context import RunContext
-from logging.logger import RunLogger
+from ..agent.run_context import RunContext
+from ..logging.logger import RunLogger
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 

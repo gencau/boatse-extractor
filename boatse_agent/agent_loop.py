@@ -5,19 +5,19 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Dict, Tuple, List, Optional
 
-from prompts.agent_context_prompt import AgentContextPrompt
-from logging.logger import RunLogger, _fmt_messages
+from .prompts.agent_context_prompt import AgentContextPrompt
+from .logging.logger import RunLogger, _fmt_messages
 from utils.validate_output import extract_ranked_files_from_any
 from utils.git_utils import parse_changed_files_from_diff
 from utils.json_utils import parse_json_safe
 from utils.path_utils import is_missing_path, validate_ranked_files
 from utils.prompt_utils import append_user_prompt, to_assistant_content
-from agent.run_context import RunContext
-from tools.tools import exec_tool
+from .agent.run_context import RunContext
+from .tools.tools import exec_tool
 
 import utils.tokenization_utils as tk
-from workers.chat_request_process import CallTimeout, run_with_timeout
-from prompts import FUNCTION_CALLS_TURN_1, FUNCTION_CALLS_TURN_2, FUNCTION_CALLS_TURN_3, \
+from .workers.chat_request_process import CallTimeout, run_with_timeout
+from .prompts import FUNCTION_CALLS_TURN_1, FUNCTION_CALLS_TURN_2, FUNCTION_CALLS_TURN_3, \
                           SYSTEM_PROMPT, PROMPT_TURN_1, PROMPT_TURN_2, PROMPT_TURN_3, PROMPT_TOOL_ERROR_FILE_PATH, \
                           PROMPT_RANKED_FILES_INVALID, ANSWER_REVIEW_PROMPT_W_VIEW, ANSWER_REVIEW_SYSTEM_PROMPT, \
                           SELF_EVAL_POST_VIEW_PROMPT, PROMPT_MAX_FILE_VIEWS
