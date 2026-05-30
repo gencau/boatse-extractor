@@ -17,7 +17,7 @@ from .tools.tools import exec_tool
 
 import utils.tokenization_utils as tk
 from .workers.chat_request_process import CallTimeout, run_with_timeout
-from .prompts import FUNCTION_CALLS_TURN_1, FUNCTION_CALLS_TURN_2, FUNCTION_CALLS_TURN_3, \
+from .prompts.prompts import FUNCTION_CALLS_TURN_1, FUNCTION_CALLS_TURN_2, FUNCTION_CALLS_TURN_3, \
                           SYSTEM_PROMPT, PROMPT_TURN_1, PROMPT_TURN_2, PROMPT_TURN_3, PROMPT_TOOL_ERROR_FILE_PATH, \
                           PROMPT_RANKED_FILES_INVALID, ANSWER_REVIEW_PROMPT_W_VIEW, ANSWER_REVIEW_SYSTEM_PROMPT, \
                           SELF_EVAL_POST_VIEW_PROMPT, PROMPT_MAX_FILE_VIEWS
