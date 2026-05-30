@@ -5,10 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "boatse-extractor"
 version = "0.1.0"
-description = "Bug report info extraction toolkit"
+description = "Agentic bug localization toolkit"
 requires-python = ">=3.10"
 dependencies = [
-    "groq>=0.4.0",
     "unidiff>=0.7.5",
     "openai>=2.38.0"
 ]

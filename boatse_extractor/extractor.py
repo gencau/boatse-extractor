@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 from openai import OpenAI
 
 from boatse_extractor.prompts.agent_context_prompt import AgentContextPrompt
-from boatse_extractor.utils.json_utils import parse_json_safe
+from utils.json_utils import parse_json_safe
 
 
 class BugInfoExtractor:
@@ -36,7 +36,7 @@ class BugInfoExtractor:
 
 
     # ------------------------------------------------------------------ #
-    #  Public API                                                          #
+    #  Public API                                                        #
     # ------------------------------------------------------------------ #
 
     def __call__(self, bug_description: str, **kwargs) -> Dict[str, Any]:
@@ -60,7 +60,7 @@ class BugInfoExtractor:
         return {"summarized_info": summarized_info}
 
     # ------------------------------------------------------------------ #
-    #  Private helpers                                                     #
+    #  Private helpers                                                   #
     # ------------------------------------------------------------------ #
 
     def _build_messages(self, bug_description: str) -> list:
