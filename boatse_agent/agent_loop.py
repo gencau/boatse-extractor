@@ -637,13 +637,24 @@ class BoatseAgent:
             # No usable intent; keep original
             logger.event("self_eval_skipped", step="self_eval", reason="no_ranked_files_in_eval")
             return ranked_files
+        
+    def _get_issue(self, issue_index: str) -> Dict[str, Any]:
+        df = pd.read_csv(self.dataset_path)
+        if 'instance_id' in df.columns:
+            issue = df[df['instance_id'] == issue_index].iloc[0].to_dict()
+        elif 'id' in df.columns:
+            issue = df[df['id'] == issue_index].iloc[0].to_dict()
+        else:
+            issue = df.iloc[int(issue_index)].to_dict()
+        return issue
 
     # =========================
     # Pipeline inputs:
     # dataset path, repo base path, model name, extracted option, top-k, results csv path
     # =========================
     def localize(self):
-        df = pd.read_csv(self.dataset_path).iloc[[self.issue_index]]
+        df = pd.read_csv(self.dataset_path)
+        df = self._get_issue(self.issue_index)
         dataset_name = os.path.splitext(os.path.basename(self.dataset_path))[0]
 
         results_csv_path = f"{self.results_csv_path}/{dataset_name}/" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"_results_{dataset_name}_{self.model_name}_{self.extracted_option}_top{self.top_k}.csv"
