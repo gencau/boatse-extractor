@@ -26,14 +26,15 @@ from prompts import FUNCTION_CALLS_TURN_1, FUNCTION_CALLS_TURN_2, FUNCTION_CALLS
 # Constants / Templates
 # =========================
 CONTENT_LIMIT = 512 # max tokens for view_file content
-
+DEFAULT_MODEL = "qwen/qwen3-30b-a3b-instruct-2507"
 
 class BoatseAgent:
-    def __init__(self, model_name: str, api_key: str, 
+    def __init__(self, api_key: str, 
                  dataset_path: str, repo_base_path: str, 
-                 issue_index: int,
+                 issue_index: str,
                  extracted_info: Dict[str, Any],
-                 extracted_option: str, top_k: int, 
+                 extracted_option: str = "all", top_k: int = 5, 
+                 model_name: str = DEFAULT_MODEL, 
                  results_csv_path: str = "/content/results/", log_dir: str = "/content/logs/"):
         self.model_name = model_name
         self.api_key = api_key
