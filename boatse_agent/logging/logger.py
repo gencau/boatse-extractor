@@ -3,7 +3,7 @@ import json
 from contextlib import contextmanager
 from datetime import datetime, timezone
 
-TRUNCATE_CHARS = 10000  # adjust to your needs
+TRUNCATE_CHARS = 10000  # adjust as required
 
 def _truncate(s, n=TRUNCATE_CHARS):
     if s is None:

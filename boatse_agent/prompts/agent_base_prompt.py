@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.baselines.utils.type_utils import ChatMessage
+from utils.type_utils import ChatMessage
 
 
 class AgentBasePrompt(ABC):

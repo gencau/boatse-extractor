@@ -1,5 +1,5 @@
-from src.baselines.backbones.agent.prompts.agent_base_prompt import AgentBasePrompt
-from src.baselines.backbones.agent.prompts.agent_prompt_templates import AGENT_PROMPT_TEMPLATE
+from prompts.agent_base_prompt import AgentBasePrompt
+from prompts.agent_prompt_templates import AGENT_PROMPT_TEMPLATE
 
 
 class AgentSimplePrompt(AgentBasePrompt):

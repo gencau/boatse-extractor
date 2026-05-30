@@ -1,7 +1,7 @@
 from typing import List
 
-from src.baselines.utils.type_utils import ChatMessage
-from src.baselines.backbones.agent.prompts.agent_prompt_templates import AGENT_EXTRACT_INFO_PROMPT, AGENT_SYSTEM_PROMPT_TEMPLATE, \
+from utils.type_utils import ChatMessage
+from prompts.agent_prompt_templates import AGENT_EXTRACT_INFO_PROMPT, AGENT_SYSTEM_PROMPT_TEMPLATE, \
                                                                          AGENT_FIND_BEST_MATCHES_PROMPT
 
 

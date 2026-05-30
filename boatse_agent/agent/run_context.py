@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Dict, Any
-import src.utils.tokenization_utils as tk
+import utils.tokenization_utils as tk
 
 # =========================
 # Data structures
