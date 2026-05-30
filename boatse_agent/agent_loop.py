@@ -653,8 +653,7 @@ class BoatseAgent:
     # dataset path, repo base path, model name, extracted option, top-k, results csv path
     # =========================
     def localize(self):
-        df = pd.read_csv(self.dataset_path)
-        df = self._get_issue(self.issue_index)
+        dp = self._get_issue(self.issue_index)
         dataset_name = os.path.splitext(os.path.basename(self.dataset_path))[0]
 
         results_csv_path = f"{self.results_csv_path}/{dataset_name}/" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"_results_{dataset_name}_{self.model_name}_{self.extracted_option}_top{self.top_k}.csv"
@@ -663,96 +662,92 @@ class BoatseAgent:
         log_dir = f"{self.log_dir}/{dataset_name}/" + self.model_name + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         tokenizer = tk.TokenizationUtils(self.model_name)
 
-        for index, dp in df.iterrows():
-            if dataset_name == "lca":
-                run_id = f"{dp['repo_owner']}__{dp['repo_name']}__{dp['base_sha']}_{index}"
-                repo_name = f"{dp['repo_owner']}/{dp['repo_name']}"
-                issue_description = f"{dp['issue_title']} {dp['issue_body']}"
-                repo_dir = os.path.join(self.repo_base_path, f"{dp['repo_owner']}__{dp['repo_name']}")
-            else:
-                repo_name = dp['repo']
-                repo_name = repo_name.replace("/", "__")
-                repo_name = f"{repo_name}__{dp['base_commit']}"
-                run_id = f"{repo_name}_{index}"
-                issue_description = dp['problem_statement']
-                repo_dir = os.path.join(self.repo_base_path, f"{repo_name}")
+        if dataset_name == "lca":
+            run_id = f"{dp['repo_owner']}__{dp['repo_name']}__{dp['base_sha']}_{self.issue_index}"
+            repo_name = f"{dp['repo_owner']}/{dp['repo_name']}"
+            issue_description = f"{dp['issue_title']} {dp['issue_body']}"
+            repo_dir = os.path.join(self.repo_base_path, f"{dp['repo_owner']}__{dp['repo_name']}")
+        else:
+            repo_name = dp['repo']
+            repo_name = repo_name.replace("/", "__")
+            repo_name = f"{repo_name}__{dp['base_commit']}"
+            run_id = f"{repo_name}_{self.issue_index}"
+            issue_description = dp['problem_statement']
+            repo_dir = os.path.join(self.repo_base_path, f"{repo_name}")
 
-            logger = RunLogger(log_dir=log_dir, run_id=run_id, model_name=self.model_name)
-            try:
-                # Always nice to know where we're at...
-                print(f"\n\n=== Processing issue {index} in {repo_name} ===")
+        logger = RunLogger(log_dir=log_dir, run_id=run_id, model_name=self.model_name)
+        try:
+            print(f"\n\n=== Processing issue {self.issue_index} in {repo_name} ===")
 
-                ctx = RunContext(
-                    repo_name=repo_name, repo_dir=repo_dir, dataset=dataset_name, issue_index=index,
+            ctx = RunContext(
+                repo_name=repo_name, repo_dir=repo_dir, dataset=dataset_name, issue_index=self.issue_index,
                     issue_description=issue_description, model_name=self.model_name, tk=tokenizer, extracted_option=self.extracted_option,
                     viewed_files=[], viewed_files_full={}, bm25_results=[], extracted_info=self.extracted_info, num_files=self.top_k
                 )
 
-                logger.event("start", "pipeline",
-                            dataset=dataset_name,
-                            repo_name=repo_name, repo_base_path=self.repo_base_path)
+            logger.event("start", "pipeline",
+                        dataset=dataset_name,
+                        repo_name=repo_name, repo_base_path=self.repo_base_path)
 
-                # Messages start with system
-                messages = [{"role": "system", "content": SYSTEM_PROMPT.format(n=ctx.num_files)}]
+            messages = [{"role": "system", "content": SYSTEM_PROMPT.format(n=ctx.num_files)}]
 
-                # ---- Turn 1
-                t1_call, t1_args, t1_res = self._run_turn(
-                    messages=messages,
-                    prompt_tmpl=PROMPT_TURN_1,
-                    prompt_kwargs=dict(issue_description=ctx.issue_description,
-                                    function_calls=FUNCTION_CALLS_TURN_1,
-                                    repo_name=ctx.repo_name, n=ctx.num_files),
-                    step="turn_1",
-                    ctx=ctx, logger=logger, content_limit=CONTENT_LIMIT,
+            # ---- Turn 1
+            t1_call, t1_args, t1_res = self._run_turn(
+                messages=messages,
+                prompt_tmpl=PROMPT_TURN_1,
+                prompt_kwargs=dict(issue_description=ctx.issue_description,
+                                function_calls=FUNCTION_CALLS_TURN_1,
+                                repo_name=ctx.repo_name, n=ctx.num_files),
+                step="turn_1",
+                ctx=ctx, logger=logger, content_limit=CONTENT_LIMIT,
+            )
+
+            # ---- Turn 2
+            messages.append({"role": "assistant", "content": to_assistant_content(t1_res)})
+            t2_call, t2_args, t2_res = self._run_turn(
+                messages=messages,
+                prompt_tmpl=PROMPT_TURN_2,
+                prompt_kwargs=dict(tool_call=t1_call, args=t1_args,
+                                function_calls=FUNCTION_CALLS_TURN_2, n=ctx.num_files),
+                step="turn_2",
+                ctx=ctx, logger=logger, content_limit=CONTENT_LIMIT,
+            )
+
+            # ---- Turn 3 (loop)
+            final_obj = self._turn3_loop(
+                messages=messages,
+                tool_called=t2_call, tool_args=t2_args, tool_result=t2_res,
+                ctx=ctx, logger=logger, content_limit=CONTENT_LIMIT,
+            )
+
+            ranked_files = final_obj.get("ranked_files", [])
+            self_reviewed_files = self._self_evaluate_and_adopt(
+                ranked_files=ranked_files, ctx=ctx, logger=logger
                 )
+            if len(self_reviewed_files) > 0:
+                ranked_files = self_reviewed_files
 
-                # ---- Turn 2
-                messages.append({"role": "assistant", "content": to_assistant_content(t1_res)})
-                t2_call, t2_args, t2_res = self._run_turn(
-                    messages=messages,
-                    prompt_tmpl=PROMPT_TURN_2,
-                    prompt_kwargs=dict(tool_call=t1_call, args=t1_args,
-                                    function_calls=FUNCTION_CALLS_TURN_2, n=ctx.num_files),
-                    step="turn_2",
-                    ctx=ctx, logger=logger, content_limit=CONTENT_LIMIT,
-                )
+            print(f"Ranked files: {ranked_files}")
+            logger.event("end", "pipeline", ranked_files=ranked_files, reprompts=logger.summary["reprompts"])
 
-                # ---- Turn 3 (loop)
-                final_obj = self._turn3_loop(
-                    messages=messages,
-                    tool_called=t2_call, tool_args=t2_args, tool_result=t2_res,
-                    ctx=ctx, logger=logger, content_limit=CONTENT_LIMIT,
-                )
+            summary_row = {
+                "id": dp["id"] if dataset_name == "lca" else dp['instance_id'],
+                "run_id": logger.run_id,
+                "repo": ctx.repo_name,
+                "base_sha": dp["base_sha"] if dataset_name == "lca" else dp['base_commit'],
+                "changed_files": dp["changed_files"] if dataset_name == "lca" else parse_changed_files_from_diff(dp['patch']),
+                "model": ctx.model_name,
+                "reprompts": logger.summary["reprompts"],
+                "final_files": ranked_files,
+                "started_at": logger.summary["started_at"],
+                "finished_at": datetime.now(timezone.utc).isoformat(),
+            }
+            (pd.DataFrame([summary_row])
+                .to_csv(results_csv_path, mode="a", index=False, header=not os.path.exists(results_csv_path)))
 
-                ranked_files = final_obj.get("ranked_files", [])
-                # Self-evaluate and optionally adopt improved list
-                self_reviewed_files = self._self_evaluate_and_adopt(
-                    ranked_files=ranked_files, ctx=ctx, logger=logger
-                    )
-                if len(self_reviewed_files) > 0:
-                    ranked_files = self_reviewed_files
-
-                print(f"Ranked files: {ranked_files}")
-                logger.event("end", "pipeline", ranked_files=ranked_files, reprompts=logger.summary["reprompts"])
-
-                summary_row = {
-                    "id": dp["id"] if dataset_name == "lca" else dp['instance_id'],
-                    "run_id": logger.run_id,
-                    "repo": ctx.repo_name,
-                    "base_sha": dp["base_sha"] if dataset_name == "lca" else dp['base_commit'],
-                    "changed_files": dp["changed_files"] if dataset_name == "lca" else parse_changed_files_from_diff(dp['patch']),
-                    "model": ctx.model_name,
-                    "reprompts": logger.summary["reprompts"],
-                    "final_files": ranked_files,
-                    "started_at": logger.summary["started_at"],
-                    "finished_at": datetime.now(timezone.utc).isoformat(),
-                }
-                (pd.DataFrame([summary_row])
-                    .to_csv(results_csv_path, mode="a", index=False, header=not os.path.exists(results_csv_path)))
-
-            except Exception as e:
-                logger.event("error", "pipeline", error=str(e))
-                logger.close()
-                raise
-            finally:
-                logger.close()
+        except Exception as e:
+            logger.event("error", "pipeline", error=str(e))
+            logger.close()
+            raise
+        finally:
+            logger.close()
