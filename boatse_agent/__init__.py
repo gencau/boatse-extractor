@@ -1,2 +1,2 @@
 # boatse_agent/__init__.py
-from .agent import BoatseAgent
+from .agent_loop import BoatseAgent
