@@ -9,35 +9,37 @@ from utils.bm25_utils import extract_from_dict
 from ..agent.run_context import RunContext
 from ..logging.logger import RunLogger
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
-
-_LANG_BY_EXT = {
-    ".py": Language.PYTHON,
-    ".java": Language.JAVA,
-    ".kt": Language.KOTLIN,
-    ".kts": Language.KOTLIN,
+_EXT_TO_LANG_NAME = {
+    ".py": "PYTHON",
+    ".java": "JAVA",
+    ".kt": "KOTLIN",
+    ".kts": "KOTLIN",
 }
 
 
 def _guess_language(file_path: str):
     _, ext = os.path.splitext(file_path.lower())
-    return _LANG_BY_EXT.get(ext)
+    lang_name = _EXT_TO_LANG_NAME.get(ext)
+    if lang_name is None:
+        return None
+    from langchain_text_splitters import Language
+    return Language[lang_name]
 
 def make_code_splitter(lang_enum, token_len_fn, chunk_tokens=512, overlap_tokens=64):
     """
     lang_enum: a langchain_text_splitters.Language or None
     token_len_fn: callable(str)->int using *your* tokenizer
     """
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
     if lang_enum:
         return RecursiveCharacterTextSplitter.from_language(
             language=lang_enum,
             chunk_size=chunk_tokens,
             chunk_overlap=overlap_tokens,
             length_function=token_len_fn,
-            add_start_index=True,  # we’ll compute line numbers
+            add_start_index=True,
         )
     else:
-        # generic fallback: split on paragraphs/lines/spaces, still token-aware
         return RecursiveCharacterTextSplitter(
             chunk_size=chunk_tokens,
             chunk_overlap=overlap_tokens,

@@ -10,12 +10,9 @@ requires-python = ">=3.10"
 dependencies = [
     "unidiff>=0.7.5",
     "openai>=2.38.0",
-    "anthropic",
     "python-dotenv",
     "pandas",
     "tiktoken",
-    "transformers",
-    "sentencepiece",
     "langchain-text-splitters",
 ]
 
