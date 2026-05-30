@@ -178,8 +178,7 @@ def exec_tool(tool_name: str, tool_args: Dict[str, Any], ctx: RunContext, logger
         return tool_name, tool_args, f"bm25 results: {{\"files\": {files}, \"scores\": {scores}}}"
 
     if tool_name == "extract_relevant":
-        # TODO: use info passed as parameter here
-        result = extract_relevant(ctx.issue_index, ctx.dataset, ctx.extracted_option)
+        result = extract_relevant(ctx)
 
         if isinstance(result, dict):
             ctx.extracted_info = result
