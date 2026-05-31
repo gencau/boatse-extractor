@@ -75,7 +75,7 @@ class TokenizationUtils:
                 self._tokenizer = anthropic.Anthropic().get_tokenizer()
             elif self._model_provider == "huggingface":
                 from transformers import AutoTokenizer
-                self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
+                self._tokenizer = AutoTokenizer.from_pretrained(self._model_name, token=False, trust_remote_code=True)
             elif self._model_provider == "meta":
                 self._tokenizer = tiktoken.encoding_for_model("gpt2")
 
