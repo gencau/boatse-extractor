@@ -9,6 +9,8 @@ from utils.bm25_utils import extract_from_dict
 from ..agent.run_context import RunContext
 from ..logging.logger import RunLogger
 
+from langchain_text_splitters import Language
+
 _EXT_TO_LANG_NAME = {
     ".py": "PYTHON",
     ".java": "JAVA",
@@ -22,7 +24,7 @@ def _guess_language(file_path: str):
     lang_name = _EXT_TO_LANG_NAME.get(ext)
     if lang_name is None:
         return None
-    from langchain_text_splitters import Language
+
     return Language[lang_name]
 
 def make_code_splitter(lang_enum, token_len_fn, chunk_tokens=512, overlap_tokens=64):
@@ -68,7 +70,7 @@ def first_chunk_approx_n_tokens(
         metadatas=[{"source": file_path}]
     )
     if not docs:
-        return "", (1, 1)
+        return ""
     
     chunk = docs[0].page_content
     # Add markers that make the code look intentionally incomplete/broken
@@ -206,7 +208,7 @@ def exec_tool(tool_name: str, tool_args: Dict[str, Any], ctx: RunContext, logger
 
         view_count = ctx.viewed_files.count(file_path) if ctx.viewed_files else 0
         if view_count > 0 and view_count < 2:
-            note = f"[Note: you already viewed this file. Consider choosing another file.]"
+            note = "[Note: you already viewed this file. Consider choosing another file.]"
         elif view_count >= 2 and view_count < 5:
             note = f"[Note: you have viewed this file {view_count} times. Please select another file.]"
             return tool_name, tool_args, note
