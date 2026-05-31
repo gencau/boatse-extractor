@@ -334,7 +334,7 @@ class BoatseAgent:
 
         if not isinstance(resp, dict):
             # one-shot reprompt to coerce JSON tool call
-            rep = self.reprompt_model_invalid_json(messages, resp, logger=logger, step=f"{step}{reprompt_step_suffix}", ctx=ctx)
+            rep = self._reprompt_model_invalid_json(messages, resp, logger=logger, step=f"{step}{reprompt_step_suffix}", ctx=ctx)
             if not isinstance(rep, dict):
                 # caller can decide to abort/continue
                 logger.event("abort", f"{step}{reprompt_step_suffix}", reason="still invalid after reprompts")
@@ -368,7 +368,7 @@ class BoatseAgent:
         # If we got (or can extract) ranked files, validate/correct and finish
         rf = extract_ranked_files_from_any(parsed)
         if rf:
-            valid, invalids = self.validate_ranked_files(rf, ctx.repo_dir)
+            valid, invalids = validate_ranked_files(rf, ctx.repo_dir)
             if invalids:
                 logger.event("ranked_files_validation", step="turn_3_validate",
                                 proposed=rf, valid=valid, invalid=invalids)
@@ -501,7 +501,7 @@ class BoatseAgent:
                 logger.event("abort", "turn_3_reprompt", reason="too many invalid re-prompts")
                 return {"ranked_files": []}
 
-            rep = self.reprompt_model_invalid_json(messages, tool_result, logger=logger, step="turn_3_reprompt", ctx=ctx)
+            rep = self._reprompt_model_invalid_json(messages, tool_result, logger=logger, step="turn_3_reprompt", ctx=ctx)
             if rep and rep.get("ranked_files"):
                 logger.event("final_answer", "turn_3_reprompt", ranked_files=rep["ranked_files"])
                 return rep
