@@ -93,7 +93,7 @@ class BoatseAgent:
                     logger.close()
                 continue
             
-            rf = self.extract_ranked_files_from_any(parsed)
+            rf = extract_ranked_files_from_any(parsed)
             if rf:
                 if logger:
                     logger.event("final_answer", step=step_label, ranked_files=rf)
@@ -227,7 +227,7 @@ class BoatseAgent:
                     logger.close()
                 continue
 
-            rf = self.extract_ranked_files_from_any(parsed)
+            rf = extract_ranked_files_from_any(parsed)
             if rf:
                 if logger:
                     logger.event("reprompt_success", step=step, attempt=attempt, ranked_files=rf)
@@ -366,7 +366,7 @@ class BoatseAgent:
 
     def _validate_ranked_files(self, parsed, ctx, logger, messages):
         # If we got (or can extract) ranked files, validate/correct and finish
-        rf = self.extract_ranked_files_from_any(parsed)
+        rf = extract_ranked_files_from_any(parsed)
         if rf:
             valid, invalids = self.validate_ranked_files(rf, ctx.repo_dir)
             if invalids:
@@ -427,9 +427,9 @@ class BoatseAgent:
             logger.event("parse", "turn_3", parsed=bool(parsed))
 
             # If we got (or can extract) ranked files, validate/correct and finish
-            rf = self.extract_ranked_files_from_any(parsed)
+            rf = extract_ranked_files_from_any(parsed)
             if rf:
-                valid, invalids = self.validate_ranked_files(rf, ctx.repo_dir)
+                valid, invalids = validate_ranked_files(rf, ctx.repo_dir)
                 if invalids:
                     logger.event("ranked_files_validation", step="turn_3_validate",
                                 proposed=rf, valid=valid, invalid=invalids)
@@ -490,7 +490,7 @@ class BoatseAgent:
                     )
                     # if we got a final answer during error handling, return it
                     if tool_called == "exit":
-                        candidate = self.extract_ranked_files_from_any(tool_result)
+                        candidate = extract_ranked_files_from_any(tool_result)
                         if candidate:
                             return {"ranked_files": candidate}
                 continue
@@ -649,8 +649,7 @@ class BoatseAgent:
         return issue
 
     # =========================
-    # Pipeline inputs:
-    # dataset path, repo base path, model name, extracted option, top-k, results csv path
+    # Entry point: localization pipeline
     # =========================
     def localize(self):
         dp = self._get_issue(self.issue_index)

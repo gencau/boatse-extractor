@@ -1,3 +1,4 @@
 unidiff
 openai
+pandas
 langchain_text_splitters
