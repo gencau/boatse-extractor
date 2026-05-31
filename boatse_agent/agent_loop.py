@@ -554,7 +554,7 @@ class BoatseAgent:
             Returns ('rank', List[str]) or ('view', str) or ('', None)
             """
             # 1) direct ranked-files extraction (robust)
-            rf = self.extract_ranked_files_from_any(resp)
+            rf = extract_ranked_files_from_any(resp)
             if rf:
                 return ("rank", rf)
 
