@@ -348,7 +348,7 @@ class BoatseAgent:
         )
 
         # If the chosen tool hit a bad path, give the model a chance to fix itself.
-        missing, err = self.is_missing_path(tool_called, tool_args, tool_result, ctx.repo_dir)
+        missing, err = is_missing_path(tool_called, tool_args, tool_result, ctx.repo_dir)
         if missing:
             tool_called, tool_args, tool_result = self._handle_tool_error_and_reprompt(
                 messages=messages,
@@ -475,7 +475,7 @@ class BoatseAgent:
                         # fallthrough to reprompt
                         model_out = parsed
 
-                missing, err = self.is_missing_path(tool_called, tool_args, tool_result, ctx.repo_dir)
+                missing, err = is_missing_path(tool_called, tool_args, tool_result, ctx.repo_dir)
                 if missing:
                     tool_called, tool_args, tool_result = self._handle_tool_error_and_reprompt(
                         messages=messages,
