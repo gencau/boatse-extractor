@@ -35,7 +35,7 @@ class BoatseAgent:
                  extracted_info: Dict[str, Any],
                  extracted_option: str = "all", top_k: int = 5, 
                  model_name: str = DEFAULT_MODEL, 
-                 results_csv_path: str = "/content/results/", log_dir: str = "/content/logs/"):
+                 results_csv_path: str = "/content/results/", log_dir: str = "/content/logs/"): # Default is setup for Colab
         self.model_name = model_name
         self.api_key = api_key
         self.dataset_path = dataset_path
